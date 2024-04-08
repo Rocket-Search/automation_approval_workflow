@@ -1,0 +1,4 @@
+---
+- include_tasks: tsk-set-ssh-key.yaml
+  when: lnx_vers == "rhel_92"
+

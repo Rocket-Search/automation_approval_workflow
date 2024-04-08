@@ -1,0 +1,3 @@
+---
+- name: create client config
+  ansible.builtin.include_tasks: tsk-icinga_config.yaml

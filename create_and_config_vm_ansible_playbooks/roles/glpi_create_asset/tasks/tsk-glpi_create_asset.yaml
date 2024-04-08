@@ -1,0 +1,61 @@
+---
+- name: "create glpi paylod json file"
+  ansible.builtin.file:
+    path: "/tmp/{{ vm_name_fqdn }}_glpi_asset.json"
+    state: touch
+
+- name: "edit entry glpi payload json file"
+  vars:
+    __uuid: "{{ '%032x' % ((2**128) | random) }}"
+    uuid: "{{ __uuid[0:8] }}-{{ __uuid[8:12] }}-{{ __uuid[12:16] }}-{{ __uuid[16:20] }}-{{ __uuid[20:32] }}"
+  ansible.builtin.shell: |
+      cat > /tmp/{{ vm_name_fqdn }}_glpi_asset.json << EOF
+      {
+        "input": [
+          {
+            "name": "{{ vm_name_fqdn }}",
+            "uuid": "{{ uuid }}",
+            "serial": "100$RANDOM",
+            "locations_id": "1",
+            "states_id": "1",
+            "comment": "KOMMENTAR",
+            "users_id_tech": "2",
+            "groups_id_tech": "4",
+            "networks_id": "1",
+            "computertypes_id": "1",
+            "manufacturers_id": "1",
+            "computermodels_id": "1"
+          }
+        ]
+      }
+
+
+- name: "get session token"
+  ansible.builtin.shell: |
+    curl -s -u glpi:glpi -X POST -H 'Content-Type: application/json' -H 'App-Token: luOXOTaXCvrAhRndg0p4O0YFFKssiT6ppDDCH2jF' 'http://172.17.190.52/apirest.php/initSession' | grep session_token | awk -F '\"' '{print $4}'
+    #curl -s -u glpi:glpi -X POST -H 'Content-Type: application/json' -H 'App-Token: luOXOTaXCvrAhRndg0p4O0YFFKssiT6ppDDCH2jF' 'http://172.17.190.52/apirest.php/initSession' | jq | grep session_token | awk -F '\"' '{print $4}'
+  register: session_token
+
+- name: "Debug Function Check 2 Vars uebergabe. nur stdout in die variable schreiben"
+  ansible.builtin.set_fact:
+    var_2: "{{ session_token.stdout }}"
+    cacheable: yes
+
+- debug:
+    msg: "variable_2: {{ var_2 }}"
+
+- name: "send payload"
+  ansible.builtin.shell: |
+    curl -s -u glpi:glpi -X POST -H 'Content-Type: application/json' -H 'App-Token: luOXOTaXCvrAhRndg0p4O0YFFKssiT6ppDDCH2jF' -H 'Session-Token: {{ var_2 }}' -d @/tmp/{{ vm_name_fqdn }}_glpi_asset.json 'http://172.17.190.52/apirest.php/Computer'
+
+
+
+
+
+
+
+
+
+
+
+

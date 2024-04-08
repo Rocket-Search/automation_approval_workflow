@@ -1,0 +1,23 @@
+---
+collections:
+ - name: ansible.controller
+ - name: ansible.posix
+ - name: community.general
+ - name: nutanix.ncp
+ - name: redhat.rhel_system_roles
+ - name: redhat.satellite
+ - name: vmware.vmware_rest
+ - name: ansible.netcommon
+ - name: ansible.network  
+ - name: ansible.utils
+ - name: arista.eos
+ - name: awx.awx
+ - name: cisco.ios
+ - name: cisco.iosxr
+ - name: cisco.nxos
+ - name: frr.frr
+ - name: junipernetworks.junos
+ - name: openvswitch.openvswitch
+ - name: theforeman.foreman
+ - name: vyos.vyos
+ - name: kubernetes.core

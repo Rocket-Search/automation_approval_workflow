@@ -1,0 +1,40 @@
+---
+- name: "### dnf install openscap ###"
+  ansible.builtin.dnf:
+   name:
+     - openscap-utils.x86_64
+     - openscap.x86_64
+     - openscap-devel.x86_64
+     - scap-workbench.x86_64
+     - rubygems.noarch
+     - rubygems-devel.noarch
+   state: latest
+   update_cache: true
+
+- name: "install gem foreman_scap_client###"
+  ansible.builtin.shell: gem install foreman_scap_client
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,51 @@
+---
+- name: "### PB: Deploy Host ###"
+  hosts: "{{ esx_host_fqdn }}"
+
+  roles: 
+    - role: ../roles/deploy-host
+
+  post_tasks:
+    - debug:
+        var: ip_address_2
+
+  
+  tasks:
+    - name: save ip temp to disk on ESX
+      ansible.builtin.shell: echo '{{ ip_address_2 }}' > /tmp/file_one
+
+- name: Running on the Ansible server
+  hosts: localhost
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Test create local file
+      ansible.builtin.shell: echo "Hello" > /tmp/hello.txt
+    - name: scp file from esx
+      ansible.builtin.shell: sftp -r -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "{{ esx_host_fqdn }}":/tmp/file_one /tmp/
+      async: 60
+      poll: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

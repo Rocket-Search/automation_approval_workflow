@@ -1,0 +1,31 @@
+---
+- name: " ### PLAYBOOK: SET SSH KEY ### "
+  hosts: "{{ vm_name_fqdn }}"
+  gather_facts: true
+  become: true
+
+  roles:
+    - role: ../roles/set-ip-name-etc
+
+- name: Running on the Ansible server
+  hosts: aap
+
+  tasks:
+    - name: IP variable_2
+    - debug:
+        msg: "IP variable_2: {{ ip_address }}"
+
+  tasks:
+    - name: change IP in AAP
+      ansible.controller.host:
+        controller_host: aap.moore.corp
+        controller_password: <aap pw>
+        controller_username: <aap user>
+        name: "{{ vm_name_fqdn }}"
+        description: Host "{{ vm_name_fqdn }}" added from AAP via Automation Task.
+        inventory: VM_Inventory
+        enabled: true
+        state: present
+        variables:
+          ansible_host: "{{ ip_address }}"
+

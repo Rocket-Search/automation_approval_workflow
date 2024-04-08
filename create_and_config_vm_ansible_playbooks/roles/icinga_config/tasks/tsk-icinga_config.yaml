@@ -1,0 +1,60 @@
+- name: "Downlaod Icinga Check Plugins"
+  ansible.builtin.get_url:
+    url: https://foreman.moore.corp/pulp/content/bit-devil-orga/Library/custom/bit-devil_product/bit-devil_file_repo/icinga_plugins.tar.gz
+    dest: "/tmp/icinga_plugins.tar.gz"
+    mode: "0440"
+    validate_certs: "no"
+
+- name: "create  nagios plugin folder"
+  ansible.builtin.file:
+    path: /usr/lib/nagios/plugins
+    owner: root
+    group: root
+    mode: '1777'
+    state: directory
+
+- name: "extract nagios/icinga plugins to specific diretory"
+  ansible.builtin.unarchive:
+    src: /tmp/icinga_plugins.tar.gz
+    dest: /usr/lib/nagios/plugins/
+    remote_src: true
+
+- name: "create icinga check user"
+  ansible.builtin.user:
+    name: icinga
+    comment: icinga check user
+    uid: 1666
+    group: users
+
+- name: "icinga change password"
+  ansible.builtin.user:
+    name: icinga
+    state: present
+    password: "{{ lookup('env', 'ANSIBLE_NET_PASSWORD') | password_hash('sha512', '/mMU8f6OcAaOqsur') }}"
+
+- name: "create .ssh folder "
+  ansible.builtin.file:
+    path: "/home/icinga/.ssh"
+    state: directory
+
+- name: "create empty authorized_keys"
+  ansible.builtin.file:
+    path: "/home/icinga/.ssh/authorized_keys"
+    state: touch
+
+- name: "put pubkey"
+  ansible.builtin.lineinfile:
+    path: "/home/icinga/.ssh/authorized_keys"
+    insertafter: "EOF"
+    line: "{{ ssh_icinga_pub_key }}"
+
+
+
+
+
+
+
+
+
+
+

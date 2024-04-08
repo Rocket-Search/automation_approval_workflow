@@ -1,0 +1,32 @@
+---
+    - name: create remedeition file
+      ansible.builtin.shell: oscap xccdf generate fix  --fix-typ bash --output /tmp/my-remediation-script.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_cis_customized_20231230 --tailoring-file /tmp/ssg-rhel9-ds-tailoring_20231230.xml --tailoring-id xccdf_org.ssgproject.content_profile_cis_customized_20231230 results.xml
+      ignore_errors: true
+
+    - name: set rules
+      ansible.builtin.shell: /tmp/my-remediation-script.sh
+      ignore_errors: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

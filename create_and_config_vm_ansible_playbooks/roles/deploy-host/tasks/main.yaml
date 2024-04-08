@@ -1,0 +1,8 @@
+---
+- name: Include nutanix tasks
+  ansible.builtin.include_tasks: tsk-create-host-xen.yaml
+  when: host_vz_platform == "xen"
+
+- name: Include vmware tasks
+  ansible.builtin.include_tasks: tsk-create-host-vmware.yaml
+  when: host_vz_platform == "vmware"

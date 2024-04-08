@@ -1,0 +1,41 @@
+---
+- name: Create a directory if it does not exist
+  ansible.builtin.file:
+    path: /etc/foreman_scap_client
+    state: directory
+    mode: '0755'
+
+- name: "Downlaod Foreman SCAP Client CONFIG"
+  ansible.builtin.get_url:
+    url: https://foreman.moore.corp/pulp/content/bit-devil-orga/Library/custom/bit-devil_product/bit-devil_file_repo/rhel9_foreman_scap_client_config.yaml
+    dest: "/etc/foreman_scap_client/config.yaml"
+    mode: "0440"
+    validate_certs: "no"
+
+- name: "Check foreman_scap_client mit upload"
+  ansible.builtin.shell: time /usr/local/bin/foreman_scap_client 1
+  ignore_errors: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

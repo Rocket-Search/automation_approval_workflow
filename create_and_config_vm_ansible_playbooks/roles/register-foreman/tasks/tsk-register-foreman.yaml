@@ -1,0 +1,84 @@
+---
+- name: "### Check hosts file ### "
+  ansible.builtin.file:
+    path: "/etc/hosts"
+    state: file
+
+- name: " create hosts file"
+  ansible.builtin.file:
+    path: "/etc/hosts"
+    state: touch
+
+- name: "add hosts entry for foreman"
+  ansible.builtin.lineinfile:
+    path: "/etc/hosts"
+    insertafter: "EOF"
+    line: "172.17.190.5    foreman.moore.corp      foreman"
+
+- name: "Downlaod Foreman SSL Zertis RPM"
+  ansible.builtin.get_url:
+    url: "https://foreman.moore.corp/pub/katello-ca-consumer-latest.noarch.rpm"
+    dest: "/tmp/katello-ca-consumer-latest.noarch.rpm"
+    mode: "0440"
+    validate_certs: "no"
+
+- name: "### unregister vm from redhat online repo and subscription ####"
+  community.general.redhat_subscription:
+    state: absent
+    username: <rh user>
+    password: <rh pw>
+    auto_attach: true
+  ignore_errors: true
+  
+- name: "### subscription-manager remove all ###"
+  ansible.builtin.command: subscription-manager remove --all
+  ignore_errors: true
+
+- name: "### subscription-manager clean ###"
+  ansible.builtin.command: subscription-manager clean
+  ignore_errors: true
+
+- name: "### subscription-manager refresh ###"
+  ansible.builtin.command: subscription-manager refresh
+  ignore_errors: true
+
+- name: "Install katello zertis rpm from a local file"
+  ansible.builtin.dnf:
+    name: "/tmp/katello-ca-consumer-latest.noarch.rpm"
+    state: present
+    disable_gpg_check: true
+
+
+- name: "### register vm in local foreman/repo ####"
+  community.general.redhat_subscription:
+    state: present
+    server_hostname: foreman.moore.corp
+    org_id: bit-devil-orga
+    activationkey: rhel_92_act_key
+    force_register: true
+  become: true
+
+- name: "### subscription-manager refresh ###"
+  ansible.builtin.command: subscription-manager refresh
+  ignore_errors: true
+
+- name: "### subscription-manager status ###"
+  ansible.builtin.command: subscription-manager status
+  ignore_errors: true
+
+- name: "### subscription-manager identity ###"
+  ansible.builtin.command: subscription-manager identity
+  ignore_errors: true
+
+- name: "### subscription-manager list --available ###"
+  ansible.builtin.command: subscription-manager list --available
+  ignore_errors: true
+
+- name: "### subscription-manager list repos --list ###"
+  ansible.builtin.command: subscription-manager repos --list
+  ignore_errors: true
+
+- name: "### dnf repolist --all ###"
+#  ansible.builtin.dnf:
+  ansible.builtin.command: dnf repolist --all
+  ignore_errors: true

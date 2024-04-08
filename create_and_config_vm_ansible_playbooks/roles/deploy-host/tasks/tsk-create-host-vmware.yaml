@@ -1,0 +1,26 @@
+---
+- name: "###deploy vm from template, register and start VM (wait for question timeout)###"
+  ansible.builtin.shell: |
+    cd /vmfs/volumes/"{{ datastore }}"
+    mkdir "{{ vm_name_fqdn }}"
+    vmkfstools -i /vmfs/volumes/datastore3/"{{ lnx_vers }}"_template/"{{ lnx_vers }}"_template.vmdk /vmfs/volumes/"{{ datastore }}"/"{{ vm_name_fqdn }}"/"{{ lnx_vers }}"_template.vmdk -d thin
+    cp -frv /vmfs/volumes/datastore3/"{{ lnx_vers }}"_template/"{{ lnx_vers }}"_template.vmx /vmfs/volumes/"{{ datastore }}"/"{{ vm_name_fqdn }}"/
+    sed 's/displayName = "'{{ lnx_vers }}'_template"/displayName = "{{ vm_name_fqdn }}"/' -i /vmfs/volumes/"{{ datastore }}"/"{{ vm_name_fqdn }}"/'{{ lnx_vers }}'_template.vmx
+    vim-cmd solo/registervm /vmfs/volumes/"{{ datastore }}"/"{{ vm_name_fqdn }}"/'{{ lnx_vers }}'_template.vmx
+    vim-cmd vmsvc/getallvms | grep "{{ vm_name_fqdn }}" | awk -F " " '{print $1}' | xargs -I % vim-cmd vmsvc/power.on %
+
+- name: "###Prüfen und warten ob IP vergeben wird###"
+  ansible.builtin.shell: |
+    vim-cmd vmsvc/getallvms | grep "{{ vm_name_fqdn }}" | awk -F " " '{print $1}' | xargs -I % vim-cmd vmsvc/get.guest % | grep ipAddress | head -n 1 | awk -F "\"" '{print $2}'
+  register: command_output
+  until: command_output.stdout != ""
+  retries: 100
+  delay: 10
+
+- name: "set output variable to new variable# Extern übergeben Var. haben vorang vor set_fact ????"
+  ansible.builtin.set_fact:
+    ip_address_2: "{{ command_output.stdout }}"
+    cacheable: yes
+
+- debug:
+    msg: "IP variable_2: {{ ip_address_2 }}"

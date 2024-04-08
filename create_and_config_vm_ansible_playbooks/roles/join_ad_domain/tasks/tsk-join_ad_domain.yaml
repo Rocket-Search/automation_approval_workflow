@@ -1,0 +1,114 @@
+---
+- name: "### Check hosts file ### "
+  ansible.builtin.file:
+    path: "/etc/hosts"
+    state: file
+
+- name: " create hosts file"
+  ansible.builtin.file:
+    path: "/etc/hosts"
+    state: touch
+
+- name: "add hosts entry for foreman"
+  ansible.builtin.lineinfile:
+    path: "/etc/hosts"
+    insertafter: "EOF"
+    line: "172.17.190.67    w2k22ad.moore.corp      w2k22ad"
+
+- name: "### Check hosts file ### "
+  ansible.builtin.file:
+    path: "/etc/resolv.conf"
+    state: file
+
+- name: " create hosts file"
+  ansible.builtin.file:
+    path: "/etc/resolv.conf"
+    state: touch
+
+- name: "add hosts dns server AD Server"
+  ansible.builtin.lineinfile:
+    path: "/etc/resolv.conf"
+    insertafter: "EOF"
+    line: "nameserver 172.17.190.67"
+
+- name: "### dnf install sssd ###"
+  ansible.builtin.dnf:
+   name:
+     - sssd
+     - realmd
+     - oddjob
+     - oddjob-mkhomedir
+     - adcli
+     - krb5-workstation
+     - samba-common-tools
+     - openldap-clients.x86_64
+   state: latest
+   update_cache: true
+
+
+- name: " real discover"
+  ansible.builtin.shell: realm -v discover w2k22ad.moore.corp
+  ignore_errors: true
+
+- name: " leave first Domain"
+  ansible.builtin.shell: realm leave -v moore.corp
+  ignore_errors: true
+
+- name: " join Domain"
+  ansible.builtin.shell: echo 'Test1234' | realm join -v w2k22ad.moore.corp -U superman --computer-ou='ou=linux_server,ou=linux_user,dc=moore,dc=corp'
+
+
+- name: "add suders nssswitch.conf"
+  ansible.builtin.lineinfile:
+    path: "/etc/nsswitch.conf"
+    insertafter: "EOF"
+    line: "sudoers:    files sss"
+
+
+- name: "edit entry sssd.conf"
+  ansible.builtin.blockinfile:
+    path: "/etc/sssd/sssd.conf"
+    insertafter: "EOF"
+    block: |
+      default_domain_suffix = MOORE.CORP
+      full_name_format = %1$s
+
+
+- name: "change sssd.conf enmtry"
+  ansible.builtin.lineinfile:
+    path: "/etc/sssd/sssd.conf"
+    search_string: 'use_fully_qualified_names = True'
+    line: '###use_fully_qualified_names = True'
+
+- name: " sudeors all"
+  community.general.sudoers:
+    name: sudo_user_gruppe
+    group: sudo_user_gruppe
+    host: "{{ vm_name_fqdn }}"
+    runas: root
+    commands: ALL
+
+- name: " cat shadown single command"
+  community.general.sudoers:
+    name: cat_shadow_gruppe
+    group: cat_shadow_gruppe
+    host: "{{ vm_name_fqdn }}"
+    runas: root
+    commands: /usr/bin/cat /etc/shadow
+
+- name: " restart sssd delete cache"
+  ansible.builtin.shell: |  
+    sss_cache -E
+    rm -frv /var/lib/sss/db/*
+    systemctl restart sssd.service
+
+
+
+
+
+
+
+
+
+
+

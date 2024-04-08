@@ -1,0 +1,8 @@
+---
+- name: "### PB: Join AD###"
+  hosts: "{{ vm_name_fqdn }}"
+  gather_facts: false
+  become: true
+
+  roles: 
+    - role: ../roles/join_ad_domain

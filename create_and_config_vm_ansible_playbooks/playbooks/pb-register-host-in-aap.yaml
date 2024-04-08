@@ -1,0 +1,16 @@
+---
+- name: "### PB: Add Host to Inventory for Deployment ###"
+  hosts: localhost
+  gather_facts: true
+  become: true
+
+  vars:
+    ip: "keine IP_1"
+    ip_2: "keine IP_2"
+
+
+  roles: 
+      - role: ../roles/register-host-in-aap
+
+
+

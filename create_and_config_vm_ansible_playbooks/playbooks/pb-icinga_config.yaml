@@ -1,0 +1,24 @@
+---
+- name: "### PB: Foreman Repo Sync###"
+  hosts: "{{ vm_name_fqdn }}"
+  gather_facts: true
+  become: true
+
+  vars:
+    network:
+      username: '{{ lookup("env", "ANSIBLE_NET_USERNAME") }}'
+      password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD") }}'
+
+  roles: 
+    - role: ../roles/icinga_config
+
+- hosts: icinga
+  gather_facts: true
+  become: true
+
+  tasks:
+
+    - name: "per api hinzufuegen"
+      ansible.builtin.include_tasks:
+        file: ../roles/icinga_config/tasks/tsk-icinga_api_server_config.yaml
+

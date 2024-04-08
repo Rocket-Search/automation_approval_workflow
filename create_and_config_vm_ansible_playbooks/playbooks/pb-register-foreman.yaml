@@ -1,0 +1,6 @@
+---
+- name: " ### PLAYBOOK: SET SSH KEY ### "
+  hosts: "{{ vm_name_fqdn }}"
+
+  roles: 
+    - role: ../roles/register-foreman

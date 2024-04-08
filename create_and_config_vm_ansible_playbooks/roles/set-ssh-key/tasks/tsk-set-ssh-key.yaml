@@ -1,0 +1,16 @@
+---
+- name: "### TASK: SET SSH KEY ### "
+  ansible.builtin.file:
+    path: "/root/.ssh"
+    state: directory
+
+- name: "create empty file"
+  ansible.builtin.file:
+    path: "/root/.ssh/authorized_keys"
+    state: touch
+
+- name: "put pubkey"
+  ansible.builtin.lineinfile:
+    path: "/root/.ssh/authorized_keys"
+    insertafter: "EOF"
+    line: "{{ ssh_pub_key }}"

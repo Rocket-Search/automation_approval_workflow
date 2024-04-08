@@ -1,0 +1,34 @@
+---
+- name: "Neue IP"
+  debug:
+   msg: "IP zusammenstzung : {{ ip_address }}/{{ subnet }}"
+
+
+- name: "### set ip, gw, dns ###"
+  community.general.nmcli:
+      conn_name: ens192
+      type: ethernet
+      ip4: "{{ ip_address }}/{{ subnet }}"
+      gw4: 172.17.190.250
+      dns4:
+      - 8.8.8.8
+      - 172.17.190.30
+      state: present
+
+- name: "### change the hostname ####"
+  ansible.builtin.hostname:
+    name: "{{ vm_name_fqdn }}"
+    use: systemd
+
+
+- name: reboot with new kernel
+  command: reboot
+  async: 0
+  poll: 0
+  ignore_errors: yes
+
+
+- name: Pause for 2 minutes wegen reboot.
+  ansible.builtin.pause:
+    minutes: 2
+

@@ -1,0 +1,21 @@
+---
+version: 1
+
+build_arg_defaults:
+  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '-c'
+  EE_BASE_IMAGE: 'registry.redhat.io/ansible-automation-platform-24/ee-minimal-rhel9'
+
+  
+ansible_config: '/etc/ansible/ansible.cfg'
+  
+dependencies:
+  galaxy: requirements.yaml
+  python: requirements.txt
+  system: bindep.txt
+
+additional_build_steps:
+  prepend: |
+    RUN rm -rf /etc/rhsm-host
+    RUN rm -rf /etc/pki/entitlement-host
+    RUN rm -f /etc/yum.repos.d/redhat.repo
+    RUN microdnf clean all

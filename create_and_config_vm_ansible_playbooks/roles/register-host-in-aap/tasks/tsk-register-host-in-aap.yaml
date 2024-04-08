@@ -1,0 +1,28 @@
+---
+- name: "Read yaml file"
+  ansible.builtin.shell: "cat /tmp/file_one"
+  register: result
+  
+- name: "set output variable to new variable# Extern übergeben Var. haben vorang vor set_fact ????"
+  ansible.builtin.set_fact:
+    ip: "{{ result.stdout }}"
+    cacheable: yes
+
+
+- name: "Neue IP"
+  debug:
+   msg: "IP_1 in TSK: {{ ip }}"
+
+
+- name: "Add host to ansible automation platform inventory"
+  ansible.controller.host:
+    controller_host: aap.moore.corp
+    controller_password: <aap pw>
+    controller_username: <aap user>
+    name: "{{ vm_name_fqdn }}"
+    description: Host "{{ vm_name_fqdn }}" added from AAP via Automation Task.
+    inventory: VM_Inventory
+    enabled: true
+    state: present
+    variables:
+      ansible_host: "{{ ip }}"

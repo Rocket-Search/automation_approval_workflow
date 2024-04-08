@@ -1,0 +1,8 @@
+---
+- name: " ### PLAYBOOK: SET SSH KEY ### "
+  hosts: "{{ vm_name_fqdn }}"
+  gather_facts: true
+  become: true
+
+  roles: 
+    - role: ../roles/set-ssh-key

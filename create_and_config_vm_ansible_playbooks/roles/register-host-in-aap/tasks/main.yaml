@@ -1,0 +1,2 @@
+---
+- include_tasks: tsk-register-host-in-aap.yaml

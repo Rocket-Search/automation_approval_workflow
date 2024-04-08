@@ -1,0 +1,17 @@
+---
+- name: install openscap
+  ansible.builtin.include_tasks: tsk-openscap_install.yaml
+
+- name: profil pruefen
+  ansible.builtin.include_tasks: tsk-openscap_profile_check.yaml
+
+- name: regeln anwenden bzw. remeditiooan erstellen und ausführen
+  ansible.builtin.include_tasks: tsk-openscap_profile_set_rules_remediation.yaml
+
+- name: zweiter test nach remediation
+  ansible.builtin.include_tasks: tsk-scan_again_after_rules_set.yaml
+
+- name: zweiter scan und ergebnis nach foreman laden
+  ansible.builtin.include_tasks: tsk-upload_result_to_foreman.yaml
+
+
